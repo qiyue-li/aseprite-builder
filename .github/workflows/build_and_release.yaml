@@ -1,44 +1,44 @@
-name: Build and release Aseprite
+name: Build and release Aseprite名称：构建并发布Aseprite
 
-on:
-  push:
-    branches:
-      - main
-    paths:
+on:   :
+  push:   推动:
+    branches:   分支:
+      - main   ——主要
+    paths:   道路:
       - 'BuildLog.md'
   workflow_dispatch:
 env:
-  BUILD_TYPE: Release
+  BUILD_TYPE: Release   BUILD_TYPE:释放BUILD_TYPE：释放
 
 jobs:
   fetch-aseprite-info:
-    name: Fetch deps info
-    runs-on: ubuntu-latest
+    name: Fetch deps info   name：获取深度信息
+    runs-on: ubuntu-latest   上运行:ubuntu-latest
     outputs:
-      download-link: ${{ steps.aseprite-link.outputs.download-link }}
-      release-tag: ${{ steps.aseprite-link.outputs.release-tag }}
-    steps:
-      - name: Fetch Aseprite release link
+      download-link: $下载链接：${{steps. aseprites -link.outputs。上述}}{{ steps.aseprite-link.outputs.download-link }}
+      release-tag: $Release-tag: ${{steps.asepri -link.outputs。版本标记}}{{ steps.aseprite-link.outputs.release-tag }}
+    steps:   步骤:
+      - name: Fetch Aseprite release link—name：获取Aseprite发布链接
         id: aseprite-link
-        uses: a1393323447/fetch-release@main
+        uses: a1393323447/fetch-release@main用途:a1393323447 / fetch-release@main
         with:
-            group: aseprite
-            repo: aseprite
+            group: aseprite   aseprite group):
+            repo: aseprite   回购:aseprite
             match: Aseprite-.*?-Source.zip
 
   create-release:
-    name: Create Release
-    runs-on: ubuntu-latest
-    needs: fetch-aseprite-info
+    name: Create Release   名称：创建发布
+    runs-on: ubuntu-latest   上运行   上运行:ubuntu-latest:ubuntu-latest
+    needs: fetch-aseprite-info需求:fetch-aseprite-info
     permissions:
-      contents: write
+      contents: write   内容:写
     outputs:
-      download-link: ${{ needs.fetch-aseprite-info.outputs.download-link }}
+      download-link   上述英文: ${{ needs.fetch-aseprite-info.outputs.download-link }}
       release-tag: ${{ needs.fetch-aseprite-info.outputs.release-tag }}
     steps:
       - uses: actions/checkout@v2
       - uses: ncipollo/release-action@v1
-        with:
+        with:   :
           tag: ${{ needs.fetch-aseprite-info.outputs.release-tag }}
           body: Aseprite-${{ needs.fetch-aseprite-info.outputs.release-tag }}
           skipIfReleaseExists: true
@@ -48,31 +48,31 @@ jobs:
     name: Build Aseprite
     needs: create-release
     permissions:
-      contents: write
-    runs-on: ${{ matrix.os }}
+      contents: write   内容:写
+    runs-on   运行在: ${{ matrix.os }}   运行：${{矩阵。os}}
     strategy:
         matrix:
-          os: [ windows-latest, ubuntu-latest, macOS-latest ]
+          os: [ windows-latest操作系统：[windows-最新], ubuntu-latest, macOS-latest ]
         fail-fast: false
-    steps:
-      - name: Install Dependencies
-        if: runner.os == 'Linux'
-        shell: bash
+    steps   步骤:   步骤:
+      - name   名字: Install Dependencies—name：安装依赖项
+        if: runner.os ==    如果:跑步。os == ‘Linux’'Linux'
+        shell: bash   bash shell:
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y \
+          sudo apt-get update -qq   执行命令apt-get update -qq
+          sudo apt-get install -y \Sudo apt-get install -y
             libpixman-1-dev libfreetype6-dev libharfbuzz-dev zlib1g-dev \
-            libx11-dev libxcursor-dev libxi-dev libgl1-mesa-dev libfontconfig1-dev
-      - uses: actions/checkout@v4
-      - name: Install Aseprite
-        shell: bash
+            libx11-dev libxcursor-dev libxi-dev libgl1-mesa-dev libfontconfig1-devLibx11-dev libxcursor-dev libxi-dev libgl1-mesa-dev libfontconfig1-dev
+      - uses: actions/checkout@v4-使用：actions/checkout@v4
+      - name   名字: Install Aseprite   —name：安装Aseprite
+        shell: bash   bash shell:
         run: |
-          git clone --recurse-submodules -j8 https://github.com/aseprite/aseprite --branch ${{ needs.create-release.outputs.release-tag }}
-      - name: Install Skia
-        working-directory: aseprite
-        shell: bash
+          git clone --recurse-submodules -j8 https://github.com/aseprite/aseprite --branch ${{ needs.create-release.outputs.release-tag }}Git clone——recursive -submodules -j8 https://github.com/aseprite/aseprite——branch ${{needs.create-release.outputs。版本标记}}
+      - name   名字: Install Skia   —name：安装Skia
+        working-directory: aseprite工作目录:aseprite
+        shell: bash   bash shell:
         run: |
-          if [[ "${{ runner.os }}" == "Windows" ]] ; then
+          if [[ "${{ runner.os }}" == "Windows" ]] ; then如果[["${{runner；os}}" == "Windows"]]；然后
             choco install wget -y --no-progress
             wget https://github.com/aseprite/skia/releases/download/m124-08a5439a6b/Skia-Windows-Release-x64.zip
             unzip Skia-Windows-Release-x64.zip -d skia
